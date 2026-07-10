@@ -1,0 +1,547 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, Award, Compass, Sparkles, Heart, Monitor, ThumbsUp, RefreshCw, Send, CheckCircle2, Star, Zap, Users, ShieldAlert } from 'lucide-react';
+
+const VI_STYLE = `
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+  
+  .font-gbs {
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  
+  /* ライト(#E4F7F3)と通常(#7AC8B9)カラーをあしらったクリーンな背景グラフィックパターン */
+  .bg-gbs-pattern {
+    background-color: #FEFEFE;
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(122, 200, 185, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(228, 247, 243, 0.8) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(54, 130, 115, 0.05) 0%, transparent 50%);
+  }
+`;
+
+const QUESTIONS = [
+  {
+    id: 1,
+    text: "新しい技術やトレンドを追いかけるのが好きだ。",
+    category: "tech",
+    icon: Zap,
+    iconColor: "text-[#7AC8B9]"
+  },
+  {
+    id: 2,
+    text: "個人プレイよりも、チームで協力して何かを成し遂げる方が好きだ。",
+    category: "team",
+    icon: Users,
+    iconColor: "text-[#368273]"
+  },
+  {
+    id: 3,
+    text: "物事を直感で決めるより、ロジカルに整理・分析して考えるタイプだ。",
+    category: "tech",
+    icon: Monitor,
+    iconColor: "text-[#7AC8B9]"
+  },
+  {
+    id: 4,
+    text: "誰かが困っているのを見過ごせず、進んでサポートしたくなる。",
+    category: "customer",
+    icon: Heart,
+    iconColor: "text-[#368273]"
+  },
+  {
+    id: 5,
+    text: "仕事と同じくらい、趣味やプライベートの充実も絶対に譲れない。",
+    category: "balance",
+    icon: Sparkles,
+    iconColor: "text-[#7AC8B9]"
+  },
+  {
+    id: 6,
+    text: "作ったシステムやサービスで、使う人の「便利になった！」を直接見たい。",
+    category: "customer",
+    icon: ThumbsUp,
+    iconColor: "text-[#368273]"
+  },
+  {
+    id: 7,
+    text: "やったことがない未知の仕事や、新しい役割にも積極的に飛び込める。",
+    category: "team",
+    icon: Compass,
+    iconColor: "text-[#7AC8B9]"
+  },
+  {
+    id: 8,
+    text: "ルーティンワークを繰り返すより、常に自己成長や変化を感じられる環境が良い。",
+    category: "tech",
+    icon: Star,
+    iconColor: "text-[#368273]"
+  },
+  {
+    id: 9,
+    text: "自分の意見をしっかり持ちつつ、他人の意見も尊重して対話ができる。",
+    category: "team",
+    icon: CheckCircle2,
+    iconColor: "text-[#7AC8B9]"
+  },
+  {
+    id: 10,
+    text: "効率化や自動化できる部分を見つけると、工夫して改善したくなる。",
+    category: "balance",
+    icon: Award,
+    iconColor: "text-[#368273]"
+  }
+];
+
+
+const RESULTS = {
+  tech: {
+    gbs: "最先端の技術で挑戦し続けるGBS",
+    description: "あなたは最新のIT技術に強い興味を持ち、ロジカルシンキングで複雑な課題を紐解くエンジニア気質の持ち主です。常に新しいスキルを学び続け、世の中を一歩前進させる革新的なシステム創りにやりがいを感じるタイプです。",
+    points: [
+      "最先端の技術開発案件にアサインされやすい環境",
+      "プロフェッショナルな先輩から刺激を受けるエンジニアカルチャー",
+      "スキルアップに応じた明確な成長キャリア支援体制"
+    ],
+    matchRate: 92,
+    gradient: "from-[#7AC8B9] to-[#368273]",
+    accentBg: "bg-[#E4F7F3]",
+    accentBorder: "border-[#7AC8B9]"
+  },
+  team: {
+    gbs: "温かい仲間と支え合い高め合うGBS",
+    description: "あなたは人との繋がりやコミュニケーションを大切にし、全員で同じ目標に向かって進むことに何よりの喜びを感じるチームプレイヤーです。周囲のモチベーションを高め、風通しの良い環境を自ら作ることができます。",
+    points: [
+      "アットホームでフラット、何でも相談できる心理的安全性",
+      "お互いの強みを活かし合うワンチームでの開発体制",
+      "部署や役職を超えて切磋琢磨できる活発なカルチャー"
+    ],
+    matchRate: 95,
+    gradient: "from-[#7AC8B9] to-[#368273]",
+    accentBg: "bg-[#E4F7F3]",
+    accentBorder: "border-[#7AC8B9]"
+  },
+  customer: {
+    gbs: "徹底的な顧客ファーストを追求するGBS",
+    description: "あなたは使う人やクライアントの気持ちを最優先に考え、何が真の解決策になるのかを徹底的に追求できるソリューション創出型です。技術を単なる道具ではなく「人を幸せにする手段」として価値に変えるのが得意です。",
+    points: [
+      "上流工程から直接ユーザー・顧客の課題をヒアリングできる仕組み",
+      "UI/UXや本質的な価値設計にこだわれる自由度の高さ",
+      "自分の開発したシステムが「誰かの力になっている」手応え"
+    ],
+    matchRate: 88,
+    gradient: "from-[#7AC8B9] to-[#368273]",
+    accentBg: "bg-[#E4F7F3]",
+    accentBorder: "border-[#7AC8B9]"
+  },
+  balance: {
+    gbs: "自由な働き方と高い成長率が両立するGBS",
+    description: "あなたはタスクや時間をスマートにコントロールし、仕事もプライベートもどちらも高いパフォーマンスで両立できるスマートライフ実践者です。効率化を突き詰め、浮いた時間でさらなるインプットやリフレッシュを楽しめます。",
+    points: [
+      "フルリモート・フレックスなど柔軟で効率的な就業環境",
+      "残業を減らし、生産性を最大化するための全社的なアプローチ",
+      "仕事も趣味も家族も諦めない、自立したライフスタイルの支援"
+    ],
+    matchRate: 90,
+    gradient: "from-[#7AC8B9] to-[#368273]",
+    accentBg: "bg-[#E4F7F3]",
+    accentBorder: "border-[#7AC8B9]"
+  },
+  potential: {
+    gbs: "一人ひとりのポテンシャルを信じて一緒に未来を作るGBS",
+    description: "あなたは特定の強みや型にまだ縛られていない、無限の伸び代（ポテンシャル）を秘めたタイプです。これから様々な経験を積むことで、自分にしかない武器を自由に見つけていける柔軟さとフラットな視点を持っています。",
+    points: [
+      "未経験から安心してステップアップできる充実の研修制度",
+      "1人ひとりの希望や適性に合わせてチームを選べるキャリアプラン",
+      "先輩がマンツーマンで成長をサポートするメンター制度"
+    ],
+    matchRate: 85,
+    gradient: "from-[#7AC8B9] to-[#368273]",
+    accentBg: "bg-[#E4F7F3]",
+    accentBorder: "border-[#7AC8B9]"
+  }
+};
+
+const getHybridTitle = (primary, secondary, primaryScore, secondaryScore) => {
+  if (primary === 'potential' || primaryScore === 0) {
+    return "これから新しい可能性を秘めた、伸び代無限大";
+  }
+  if (secondaryScore === 0 || primary === secondary) {
+    switch (primary) {
+      case 'tech': return "ひたむきに技術を追求し、ロジカルに道を切り拓く技術スペシャリスト";
+      case 'team': return "仲間と真摯に向き合い、調和を重んじるハートフルな協調主義者";
+      case 'customer': return "誰かの困りごとを絶対に解決したい、寄り添い力抜群のサポートマスター";
+      case 'balance': return "仕事とライフワークの切り替えが得意な、超合理的でスマートな自立者";
+      default: return "バランス感覚に優れ、自分の強みをこれから磨いていくポテンシャル派";
+    }
+  }
+
+  const matrix = {
+    tech: {
+      team: "最先端の技術を探求しながら、チーム全体の力を底上げできる技術パートナー",
+      customer: "ロジカルな開発力と使う人への寄り添い力を兼ね備えた、ソリューション提案者",
+      balance: "自分のペースでスマートに知識をアップデートし、仕事と知的好奇心を両立する効率主義者"
+    },
+    team: {
+      tech: "先進的なシステムへの興味と、周囲の仲間を引っ張る力をあわせ持つムードメーカー",
+      customer: "チーム一丸となってお客様の喜びを徹底追及できる、想いにあふれたプロジェクト推進者",
+      balance: "みんなが無理なく笑顔で働ける環境づくりを大切にする、スマートな対話リーダー"
+    },
+    customer: {
+      tech: "技術的なアプローチからクライアントの本質的な悩みを見抜く、課題解決のスペシャリスト",
+      team: "クライアントや使う人の感動を創るために、仲間とのコラボレーションを好む価値クリエイター",
+      balance: "最大のサービスバリューを発揮しつつ、自分の時間もしっかりキープして輝くプロフェッショナル"
+    },
+    balance: {
+      tech: "時間管理を徹底して余暇を創り、その中で新たな学びやスキル磨きを楽しむスマート開発者",
+      team: "無駄なプロセスを省いて効率化し、チーム全体のゆとりと円滑な関係を生み出す組織のバランサー",
+      customer: "メリハリのある最高のパフォーマンスを維持しながら、顧客へ120%の安心を提供する価値創造者"
+    }
+  };
+
+  return matrix[primary]?.[secondary] || "様々な才能をバランス良く持っている、多才なユーティリティプレイヤー";
+};
+
+// ==========================================
+// 5. ハイブリッドGBSタイトル（〇〇なGBS）
+// ==========================================
+const getHybridGBS = (primary, secondary, primaryScore, secondaryScore) => {
+  if (primary === 'potential' || primaryScore === 0) {
+    return "一人ひとりのポテンシャルを信じて一緒に未来を作るGBS";
+  }
+  if (secondaryScore === 0 || primary === secondary) {
+    switch (primary) {
+      case 'tech': return "最先端の技術力でイノベーションを起こし続けるGBS";
+      case 'team': return "温かい絆で結ばれた仲間が互いに支え合い高め合うGBS";
+      case 'customer': return "徹底的な顧客ファーストで本質的な価値ソリューションを届けるGBS";
+      case 'balance': return "個人の自由な働き方を叶え、持続可能な圧倒的成長を両立するGBS";
+      default: return "一人ひとりのポテンシャルを信じて一緒に未来を作るGBS";
+    }
+  }
+
+  const matrix = {
+    tech: {
+      team: "高め合う技術者集団とアットホームな開発環境が共存するGBS",
+      customer: "高度なテクノロジーを顧客の幸せな価値へとダイレクトに繋ぐGBS",
+      balance: "最先端のモダン開発をフルリモート＆スマートに実践できるGBS"
+    },
+    team: {
+      tech: "最新技術への知的好奇心を持った愉快な仲間たちが集うGBS",
+      customer: "全員がワンチームとなり、お客様と同じ目線で並走できる親身なGBS",
+      balance: "高い心理的安全性のもと、個々のライフスタイルを最大限尊重し合うGBS"
+    },
+    customer: {
+      tech: "卓越した技術力と徹底したヒアリングでお客様の難題を鮮やかに解くGBS",
+      team: "社内外のメンバー全員を巻き込み、一体感を持って笑顔を創り出すGBS",
+      balance: "高い生産性で最高の成果を出し、顧客へ深い安心感を積み重ねるGBS"
+    },
+    balance: {
+      tech: "時間とタスクをスマートに管理し、効率的に最新スキルを吸収できるGBS",
+      team: "無駄を徹底して省いたゆとりある組織で、仲間との対話を心から楽しむGBS",
+      customer: "自分らしくメリハリある生活を送りながら、120%の価値を顧客へ提供するGBS"
+    }
+  };
+
+  return matrix[primary]?.[secondary] || "多彩なカルチャーと個性がシナジーを生み出すGBS";
+};
+
+// ==========================================
+// 6. メインコンポーネント (App)
+// ==========================================
+export default function App() {
+  const [gameState, setGameState] = useState('TITLE'); // TITLE, question, analyzing, result
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [scores, setScores] = useState({ tech: 0, team: 0, customer: 0, balance: 0 });
+  const [history, setHistory] = useState([]);
+  
+  const [bestCategory, setBestCategory] = useState('tech');
+  const [secondCategory, setSecondCategory] = useState('team');
+  const [primaryScoreVal, setPrimaryScoreVal] = useState(0);
+  const [secondaryScoreVal, setSecondaryScoreVal] = useState(0);
+
+  const startQuiz = () => {
+    setScores({ tech: 0, team: 0, customer: 0, balance: 0 });
+    setHistory([]);
+    setCurrentQuestionIndex(0);
+    setGameState('question');
+  };
+
+  const handleAnswer = (isYes) => {
+    const currentQuestion = QUESTIONS[currentQuestionIndex];
+    const category = currentQuestion.category;
+    
+    const scoreDiff = isYes ? 1 : 0;
+    const newScores = { ...scores, [category]: scores[category] + scoreDiff };
+    
+    setHistory([...history, { index: currentQuestionIndex, prevScores: scores, prevGameState: gameState }]);
+    setScores(newScores);
+
+    if (currentQuestionIndex < QUESTIONS.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setGameState('analyzing');
+      const totalYes = Object.values(newScores).reduce((acc, val) => acc + val, 0);
+
+      if (totalYes === 0) {
+        setBestCategory('potential');
+        setSecondCategory('potential');
+        setPrimaryScoreVal(0);
+        setSecondaryScoreVal(0);
+      } else {
+        const sortedCategories = Object.keys(newScores)
+          .map(cat => ({ category: cat, score: newScores[cat] }))
+          .sort((a, b) => b.score - a.score);
+
+        setBestCategory(sortedCategories[0].category);
+        setSecondCategory(sortedCategories[1].category);
+        setPrimaryScoreVal(sortedCategories[0].score);
+        setSecondaryScoreVal(sortedCategories[1].score);
+      }
+
+      setTimeout(() => {
+        setGameState('result');
+      }, 2500);
+    }
+  };
+
+  const handleBack = () => {
+    if (history.length === 0) return;
+    const previous = history[history.length - 1];
+    setCurrentQuestionIndex(previous.index);
+    setScores(previous.prevScores);
+    setGameState(previous.prevGameState);
+    setHistory(history.slice(0, -1));
+  };
+
+  const progressPercentage = ((currentQuestionIndex + 1) / QUESTIONS.length) * 100;
+  const ActiveIcon = QUESTIONS[currentQuestionIndex]?.icon;
+
+  const personalizedTitle = getHybridTitle(bestCategory, secondCategory, primaryScoreVal, secondaryScoreVal);
+  const personalizedGBS = getHybridGBS(bestCategory, secondCategory, primaryScoreVal, secondaryScoreVal);
+
+  return (
+    <div className="min-h-screen bg-gbs-pattern text-[#545454] flex flex-col items-center justify-center p-4 md:p-8 relative font-gbs select-none">
+      <style>{VI_STYLE}</style>
+
+      {/* --- TITLE SCREEN --- */}
+      {gameState === 'TITLE' && (
+        <div className="bg-[#FEFEFE] border border-[#E4F7F3] rounded-[32px] text-center shadow-[0_10px_30px_rgba(122,200,185,0.15)] p-8 md:p-12 max-w-lg w-full animate-in fade-in zoom-in duration-500 flex flex-col items-center">
+          
+          {/* ライト(#E4F7F3)とダーク(#368273)を用いたインジケーター */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E4F7F3] border border-[#7AC8B9]/30 text-[#368273] text-xs font-bold mb-6">
+            <Sparkles size={14} className="text-[#7AC8B9] fill-[#7AC8B9]" /> 豊かさの創出 〜 笑顔の絶えない未来を 〜
+          </div>
+          
+          {/* ダーク(#368273)で見出しを引き締める */}
+          <h1 className="text-4xl md:text-[44px] font-black tracking-tight text-[#368273] leading-tight mb-6">
+            GBSカルチャー<br />＆適職診断
+          </h1>
+          
+          <p className="text-[#545454] text-sm md:text-base leading-relaxed max-w-md mx-auto mb-10 font-medium">
+            10個の質問に「YES」か「NO」で直感的に答えるだけ。<br />
+            あなたの仕事観や強みを解き明かし、あなたにぴったりの会社を導き出します。
+          </p>
+
+          <div className="w-full">
+            {/* プライマリボタンは通常カラー(#7AC8B9) */}
+            <button
+              onClick={startQuiz}
+              className="w-full md:w-auto px-12 py-4 bg-[#7AC8B9] hover:bg-[#368273] text-[#FEFEFE] rounded-2xl font-bold text-lg active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(122,200,185,0.3)]"
+            >
+              診断をスタートする
+            </button>
+          </div>
+
+          <p className="text-[#545454]/60 text-xs mt-6 font-medium">
+            ※所要時間は約1分です。お気軽にお答えください。
+          </p>
+        </div>
+      )}
+
+      {/* --- 1. 質問回答画面 --- */}
+      {gameState === 'question' && (
+        <div className="bg-[#FEFEFE] border border-[#E4F7F3] p-6 md:p-10 rounded-[32px] shadow-[0_10px_30px_rgba(122,200,185,0.15)] space-y-8 animate-in fade-in slide-in-from-bottom duration-300 max-w-lg w-full">
+          
+          {/* 上部ヘッダー（プログレス） */}
+          <div className="flex justify-between items-center text-xs font-bold text-[#545454]/80">
+            <span className="bg-[#E4F7F3] border border-[#7AC8B9]/30 text-[#368273] px-3 py-1 rounded-full">
+              質問 {currentQuestionIndex + 1} / {QUESTIONS.length}
+            </span>
+            <span>進行状況: {Math.round(progressPercentage)}%</span>
+          </div>
+
+          {/* プログレスバー */}
+          <div className="w-full h-2 bg-[#E4F7F3] rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-[#7AC8B9] to-[#368273] transition-all duration-300"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+
+          {/* 質問コンテンツ */}
+          <div className="min-h-[180px] flex flex-col items-center justify-center text-center space-y-6 py-4">
+            <div className="p-4 bg-[#FEFEFE] rounded-2xl border border-[#E4F7F3] shadow-[0_4px_12px_rgba(122,200,185,0.1)]">
+              {ActiveIcon && <ActiveIcon className={`w-8 h-8 ${QUESTIONS[currentQuestionIndex].iconColor}`} />}
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#545454] leading-relaxed max-w-sm">
+              {QUESTIONS[currentQuestionIndex].text}
+            </h2>
+          </div>
+
+          {/* 回答ボタン */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => handleAnswer(true)}
+              className="py-4 md:py-5 bg-[#7AC8B9] hover:bg-[#368273] text-[#FEFEFE] rounded-2xl font-bold text-lg active:scale-[0.98] transition-all shadow-[0_6px_15px_rgba(122,200,185,0.3)]"
+            >
+              YES
+            </button>
+            <button
+              onClick={() => handleAnswer(false)}
+              className="py-4 md:py-5 bg-[#FEFEFE] border border-[#7AC8B9]/30 hover:bg-[#E4F7F3] text-[#545454] rounded-2xl font-bold text-lg active:scale-[0.98] transition-all"
+            >
+              NO
+            </button>
+          </div>
+
+          {/* 下部コントローラー */}
+          <div className="pt-2 flex justify-start">
+            {currentQuestionIndex > 0 && (
+              <button
+                onClick={handleBack}
+                className="text-xs text-[#7AC8B9] hover:text-[#368273] flex items-center gap-1 font-bold transition-colors"
+              >
+                ← 前の質問に戻る
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* --- 2. 解析中演出画面 --- */}
+      {gameState === 'analyzing' && (
+        <div className="bg-[#FEFEFE] border border-[#E4F7F3] p-12 rounded-[32px] text-center shadow-[0_10px_30px_rgba(122,200,185,0.15)] flex flex-col items-center justify-center space-y-6 min-h-[400px] max-w-lg w-full">
+          
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 rounded-full border-4 border-[#E4F7F3]" />
+            <div className="absolute inset-0 rounded-full border-4 border-t-[#7AC8B9] animate-spin" />
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-[#545454]">
+              回答パターンを計算中...
+            </h3>
+            <p className="text-[#7AC8B9] text-xs font-bold tracking-widest uppercase animate-pulse">
+              Analyzing GBS Culture Match
+            </p>
+          </div>
+          
+          <p className="text-[#545454]/60 text-xs max-w-xs leading-relaxed font-medium">
+            ご回答いただいた複数のベクトルを分析し、あなたの強みや指向性に合わせ、あなたにぴったりの働き方や会社を導き出しています。
+          </p>
+        </div>
+      )}
+
+      {/* --- 3. 診断結果画面 --- */}
+      {gameState === 'result' && (
+        <div className="bg-[#FEFEFE] border border-[#E4F7F3] p-6 md:p-10 rounded-[32px] shadow-[0_10px_40px_rgba(122,200,185,0.15)] space-y-6 md:space-y-8 animate-in fade-in zoom-in duration-500 w-full max-w-lg">
+          
+          {/* 結果ヘッダー */}
+          <div className="text-center space-y-2">
+            <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-[#E4F7F3] text-[#368273] tracking-wider border border-[#7AC8B9]/30">
+              DIAGNOSIS RESULT
+            </span>
+            <p className="text-[#545454]/80 text-xs font-bold uppercase tracking-widest pt-1">
+              ー あなたの診断結果 ー
+            </p>
+          </div>
+
+          {/* ★ 動的にパーソナライズされたメインコピー ★ */}
+          <div className={`border-2 ${RESULTS[bestCategory].accentBorder} ${RESULTS[bestCategory].accentBg} p-6 rounded-2xl text-center relative overflow-hidden space-y-4`}>
+            <div className="absolute top-0 right-0 p-3 opacity-10 text-[#7AC8B9]">
+              <Sparkles size={80} />
+            </div>
+            
+            <h3 className="text-md md:text-lg font-bold text-[#545454] leading-relaxed">
+              「{personalizedTitle}」<br />
+              <span className="text-xs font-semibold text-[#545454]/60 mt-1 block">なあなたには...</span>
+            </h3>
+            
+            <div className="py-2">
+              <h2 className="text-2xl md:text-[26px] font-black text-[#368273] leading-snug">
+                「{personalizedGBS}」
+              </h2>
+            </div>
+            
+            <h3 className="text-lg md:text-xl font-bold text-[#545454]">
+              がぴったり！
+            </h3>
+          </div>
+
+          {/* カルチャーマッチ度表示 */}
+          <div className="flex items-center gap-4 bg-[#FEFEFE] p-4 rounded-2xl border border-[#E4F7F3]">
+            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-[#E4F7F3] border-2 border-[#7AC8B9]">
+              <span className="text-lg font-black text-[#7AC8B9]">{RESULTS[bestCategory].matchRate}%</span>
+            </div>
+            <div>
+              <p className="text-[10px] text-[#545454]/60 font-bold uppercase tracking-wider">Culture Sync Rate</p>
+              <h4 className="text-sm font-bold text-[#545454]">GBSカルチャーとの高い共鳴度</h4>
+            </div>
+          </div>
+
+          {/* 詳細説明 */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-bold text-[#368273] border-l-4 border-[#7AC8B9] pl-2">
+              あなたについて＆GBSで活きる力
+            </h4>
+            <p className="text-[#545454] text-sm leading-relaxed font-medium">
+              {RESULTS[bestCategory].description}
+            </p>
+          </div>
+
+          {/* おすすめポイントリスト */}
+          <div className="space-y-3 bg-[#E4F7F3]/50 p-4 rounded-2xl border border-[#E4F7F3]">
+            <h4 className="text-xs font-bold text-[#368273] tracking-wider uppercase mb-1">
+              ぴったりな環境・特典
+            </h4>
+            <ul className="space-y-2.5">
+              {RESULTS[bestCategory].points.map((pt, i) => (
+                <li key={i} className="text-xs text-[#545454] flex items-start gap-2 leading-relaxed font-medium">
+                  <span className="text-[#7AC8B9] font-bold mt-0.5">✔</span>
+                  {pt}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* アクションエリア: 採用への導線 */}
+          <div className="pt-4 space-y-4">
+            <a
+              href="https://gb-sol.com/recruit/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#7AC8B9] hover:bg-[#368273] text-[#FEFEFE] rounded-2xl font-bold text-lg shadow-[0_8px_20px_rgba(122,200,185,0.3)] active:scale-[0.98] transition-all text-center"
+            >
+              GBS採用情報を見る
+              <ChevronRight size={18} />
+            </a>
+
+            <button
+              onClick={startQuiz}
+              className="w-full py-3 bg-[#E4F7F3] hover:bg-[#7AC8B9] hover:text-[#FEFEFE] text-[#368273] rounded-2xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <RefreshCw size={14} />
+              もう一度診断する
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* フッタークレジット */}
+      <div className="text-center mt-10 space-y-1">
+        <p className="text-[10px] text-[#545454]/60 font-bold uppercase tracking-widest">
+          © 2026 GBS Culture Check. All Rights Reserved.
+        </p>
+      </div>
+
+    </div>
+  );
+}
