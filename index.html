@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GBSカルチャー＆適職診断</title>
     
-    <!-- Tailwind CSS (デザインを適用するためのライブラリ) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Babel (Reactのコードをブラウザで動かせるように変換するツール) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- モジュールの読み込み設定 (Reactとアイコンライブラリ) -->
     <script type="importmap">
     {
         "imports": {
@@ -23,18 +20,14 @@
     </script>
 </head>
 <body class="bg-[#FEFEFE]">
-    <!-- アプリが描画される場所 -->
+    <!-- F12を押したあなたはエンジニアの適正があるかも！GBSでは一緒に働く仲間を募集中です♪ -->
     <div id="root"></div>
 
-    <!-- Reactのメインプログラム -->
     <script type="text/babel" data-type="module">
         import React, { useState, useEffect } from 'react';
         import ReactDOM from 'react-dom/client';
         import { ChevronRight, Award, Compass, Sparkles, Heart, Monitor, ThumbsUp, RefreshCw, Send, CheckCircle2, Star, Zap, Users, ShieldAlert } from 'lucide-react';
 
-        // ==========================================
-        // 1. VIガイドライン対応スタイル定義
-        // ==========================================
         const VI_STYLE = `
           @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
           
@@ -42,7 +35,6 @@
             font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           }
           
-          /* ライト(#E4F7F3)と通常(#7AC8B9)カラーをあしらったクリーンな背景グラフィックパターン */
           .bg-gbs-pattern {
             background-color: #FEFEFE;
             background-image: 
@@ -52,9 +44,6 @@
           }
         `;
 
-        // ==========================================
-        // 2. 質問データ定義 (10問)
-        // ==========================================
         const QUESTIONS = [
           {
             id: 1,
@@ -128,9 +117,6 @@
           }
         ];
 
-        // ==========================================
-        // 3. 診断結果データ定義 (5タイプ)
-        // ==========================================
         const RESULTS = {
           tech: {
             gbs: "最先端の技術で挑戦し続けるGBS",
@@ -199,9 +185,6 @@
           }
         };
 
-        // ==========================================
-        // 4. ハイブリッドタイトル（〇〇なあなた）
-        // ==========================================
         const getHybridTitle = (primary, secondary, primaryScore, secondaryScore) => {
           if (primary === 'potential' || primaryScore === 0) {
             return "これから新しい可能性を秘めた、伸び代無限大";
@@ -242,9 +225,6 @@
           return matrix[primary]?.[secondary] || "様々な才能をバランス良く持っている、多才なユーティリティプレイヤー";
         };
 
-        // ==========================================
-        // 5. ハイブリッドGBSタイトル（〇〇なGBS）
-        // ==========================================
         const getHybridGBS = (primary, secondary, primaryScore, secondaryScore) => {
           if (primary === 'potential' || primaryScore === 0) {
             return "一人ひとりのポテンシャルを信じて一緒に未来を作るGBS";
@@ -285,9 +265,6 @@
           return matrix[primary]?.[secondary] || "多彩なカルチャーと個性がシナジーを生み出すGBS";
         };
 
-        // ==========================================
-        // 6. メインコンポーネント (App)
-        // ==========================================
         function App() {
           const [gameState, setGameState] = useState('TITLE'); // TITLE, question, analyzing, result
           const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
